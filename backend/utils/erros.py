@@ -36,3 +36,17 @@ class NaoEncontrado(ErroDeAplicacao):
 
 class ConflitoDeDados(ErroDeAplicacao):
     status = 409
+
+
+class AcessoNegado(ErroDeAplicacao):
+    status = 403
+
+
+class LimiteExcedido(ErroDeAplicacao):
+    status = 429
+
+
+class IntegracaoIndisponivel(ErroDeAplicacao):
+    """Serviço externo desligado, sem credencial ou fora do ar."""
+
+    status = 503

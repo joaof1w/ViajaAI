@@ -7,6 +7,7 @@ from backend.services.encerrar_sessao_service import EncerrarSessaoService
 from backend.services.reenviar_codigo_service import ReenviarCodigoService
 from backend.services.verificar_codigo_service import VerificarCodigoService
 from backend.utils.autenticacao import login_obrigatorio
+from backend.utils.limite_requisicoes import limitar
 
 
 class AuthController:
@@ -44,10 +45,12 @@ class AuthController:
     # ---------------- rotas ----------------
     def registrar(self, app):
         bp = Blueprint("auth", __name__, url_prefix=self.prefixo)
-        bp.add_url_rule("/cadastro", view_func=self.cadastrar, methods=["POST"])
-        bp.add_url_rule("/verificar", view_func=self.verificar, methods=["POST"])
-        bp.add_url_rule("/reenviar-codigo", view_func=self.reenviar_codigo, methods=["POST"])
-        bp.add_url_rule("/login", view_func=self.login, methods=["POST"])
+        # Limites contra força bruta e abuso (por IP)
+        bp.add_url_rule("/cadastro", view_func=limitar("cadastro", 10, 600)(self.cadastrar), methods=["POST"])
+        bp.add_url_rule("/verificar", view_func=limitar("verificar", 10, 300)(self.verificar), methods=["POST"])
+        bp.add_url_rule("/reenviar-codigo", view_func=limitar("reenviar", 5, 600)(self.reenviar_codigo),
+                        methods=["POST"])
+        bp.add_url_rule("/login", view_func=limitar("login", 10, 300)(self.login), methods=["POST"])
         bp.add_url_rule("/logout", view_func=login_obrigatorio(self.logout), methods=["POST"])
         app.register_blueprint(bp)
         return bp

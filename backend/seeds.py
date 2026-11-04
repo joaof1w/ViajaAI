@@ -91,6 +91,55 @@ LUGARES = [
 ]
 
 
+# Referências para a busca de fotografias reais (backend/services/fotos_lugar_service.py).
+# "wikipedia": título do artigo por idioma; "palavras": termos que precisam aparecer no
+# nome do arquivo das fotos georreferenciadas; "raio_km": tolerância da conferência de
+# coordenadas (maior para parques extensos).
+REFERENCIAS_FOTOS = {
+    "Praia do Espelho": {"wikipedia": {"pt": "Praia do Espelho"}, "palavras": ["espelho"], "raio_km": 5},
+    "Praia de Jericoacoara": {"wikipedia": {"pt": "Jericoacoara", "en": "Jericoacoara"},
+                              "palavras": ["jericoacoara", "jeri"], "raio_km": 12},
+    "Baía do Sancho": {"wikipedia": {"pt": "Baía do Sancho", "en": "Baía do Sancho"},
+                       "palavras": ["sancho"], "raio_km": 5},
+    "Praia do Rosa": {"wikipedia": {"pt": "Praia do Rosa"}, "palavras": ["praia do rosa"], "raio_km": 6},
+    "Restaurante Mocotó": {"palavras": ["mocoto"], "raio_km": 2},
+    "A Casa do Porco": {"wikipedia": {"pt": "A Casa do Porco"}, "palavras": ["casa do porco"], "raio_km": 2},
+    "Oteque": {"palavras": ["oteque"], "raio_km": 2},
+    "Mercado Municipal de São Paulo": {"wikipedia": {"pt": "Mercado Municipal de São Paulo"},
+                                       "palavras": ["mercado municipal", "mercadao"], "raio_km": 2},
+    "Cânion Itaimbezinho": {"wikipedia": {"pt": "Cânion Itaimbezinho"}, "palavras": ["itaimbezinho"], "raio_km": 10},
+    "Flutuação no Rio da Prata": {"palavras": ["rio da prata", "recanto ecologico"], "raio_km": 8},
+    "Trilha da Pedra Bonita": {"wikipedia": {"pt": "Pedra Bonita (Rio de Janeiro)"},
+                               "palavras": ["pedra bonita"], "raio_km": 3},
+    "Pelourinho": {"wikipedia": {"pt": "Pelourinho (Salvador)", "en": "Pelourinho"},
+                   "palavras": ["pelourinho"], "raio_km": 2},
+    "Centro Histórico de Ouro Preto": {"wikipedia": {"pt": "Ouro Preto", "en": "Ouro Preto"},
+                                       "palavras": ["ouro preto"], "raio_km": 4},
+    "Teatro Amazonas": {"wikipedia": {"pt": "Teatro Amazonas", "en": "Teatro Amazonas"},
+                        "palavras": ["teatro amazonas", "amazonas theatre"], "raio_km": 2},
+    "MASP": {"wikipedia": {"pt": "Museu de Arte de São Paulo", "en": "São Paulo Museum of Art"},
+             "palavras": ["masp", "museu de arte de sao paulo"], "raio_km": 1.5},
+    "Instituto Inhotim": {"wikipedia": {"pt": "Instituto Inhotim", "en": "Inhotim"},
+                          "palavras": ["inhotim"], "raio_km": 4},
+    "Museu do Amanhã": {"wikipedia": {"pt": "Museu do Amanhã", "en": "Museum of Tomorrow"},
+                        "palavras": ["museu do amanha", "museum of tomorrow"], "raio_km": 1.5},
+    "Chapada dos Veadeiros": {"wikipedia": {"pt": "Parque Nacional da Chapada dos Veadeiros",
+                                            "en": "Chapada dos Veadeiros National Park"},
+                              "palavras": ["veadeiros", "alto paraiso"], "raio_km": 40},
+    "Lençóis Maranhenses": {"wikipedia": {"pt": "Parque Nacional dos Lençóis Maranhenses",
+                                          "en": "Lençóis Maranhenses National Park"},
+                            "palavras": ["lencois", "maranhenses"], "raio_km": 60},
+    "Cataratas do Iguaçu": {"wikipedia": {"pt": "Cataratas do Iguaçu", "en": "Iguazu Falls"},
+                            "palavras": ["iguacu", "iguazu", "garganta do diabo"], "raio_km": 8},
+}
+
+# Lugares cujas paisagens são candidatas ao fundo da tela inicial, em ordem de preferência.
+LUGARES_FUNDO_INICIAL = [
+    "Lençóis Maranhenses", "Baía do Sancho", "Cataratas do Iguaçu", "Praia de Jericoacoara",
+    "Chapada dos Veadeiros", "Praia do Espelho",
+]
+
+
 def popular_banco():
     """Insere os dados iniciais apenas se o banco estiver vazio."""
     criados = {"interesses": 0, "lugares": 0}

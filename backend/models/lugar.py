@@ -24,10 +24,31 @@ class Lugar(db.Model, ModeloBase):
     criado_em = db.Column(db.DateTime, default=agora_utc, nullable=False)
 
     favoritos = db.relationship("Favorito", back_populates="lugar", cascade="all, delete-orphan")
+    # Fotografias reais (só as verificadas são exibidas). "selectin" evita N+1 nas listagens.
+    fotos = db.relationship(
+        "FotoLugar",
+        back_populates="lugar",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+        order_by="(FotoLugar.principal.desc(), FotoLugar.ordem, FotoLugar.id)",
+    )
 
     @classmethod
     def listar_por_categoria(cls, categoria):
         return db.session.query(cls).filter(cls.categoria == categoria).all()
+
+    @property
+    def tipo(self):
+        """Natureza do lugar: estabelecimento (restaurantes/mercados) ou atração/destino."""
+        return "estabelecimento" if self.categoria == "gastronomia" else "atracao"
+
+    @property
+    def fotos_verificadas(self):
+        return [foto for foto in self.fotos if foto.verificada]
+
+    def foto_principal_dict(self):
+        fotos = self.fotos_verificadas
+        return fotos[0].to_dict() if fotos else None
 
     @property
     def preco_simbolo(self):
@@ -47,6 +68,11 @@ class Lugar(db.Model, ModeloBase):
             "faixa_preco": self.faixa_preco,
             "preco_simbolo": self.preco_simbolo,
             "imagem": self.imagem,
+            "foto": self.foto_principal_dict(),
+            "total_fotos": len(self.fotos_verificadas),
+            "tipo": self.tipo,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
             "melhor_epoca": self.melhor_epoca,
             "favorito": favorito,
         }

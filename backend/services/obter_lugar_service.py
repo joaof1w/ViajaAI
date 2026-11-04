@@ -17,8 +17,10 @@ class ObterLugarService:
         preferencia = usuario.preferencia if usuario else None
         favorito = bool(usuario and Favorito.buscar(usuario.id, lugar.id))
         distancia = self.servico_match.distancia_para(lugar, preferencia)
-        return lugar.to_dict(
+        dados = lugar.to_dict(
             match=self.servico_match.executar(lugar, preferencia, distancia),
             distancia_km=distancia,
             favorito=favorito,
         )
+        dados["fotos"] = [foto.to_dict() for foto in lugar.fotos_verificadas]
+        return dados

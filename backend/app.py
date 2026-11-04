@@ -1,8 +1,11 @@
 """Fábrica da aplicação Flask: registra extensões, Controllers e o frontend."""
 import os
+from urllib.parse import urlparse
 
 from flask import Flask, abort, jsonify, send_from_directory
-from werkzeug.exceptions import HTTPException
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
+from werkzeug.exceptions import HTTPException, RequestEntityTooLarge
 from werkzeug.utils import safe_join
 
 from backend.config import BASE_DIR, Config
@@ -23,16 +26,42 @@ def create_app(config=Config):
 
     registrar_controllers(app)
     registrar_tratadores_de_erro(app)
+    registrar_cabecalhos_de_seguranca(app)
     registrar_frontend(app)
 
     with app.app_context():
         import backend.models  # noqa: F401  (garante o registro das tabelas)
+        from backend.migracoes import aplicar_migracoes
         from backend.seeds import popular_banco
 
-        db.create_all()
+        db.create_all()  # só cria tabelas ausentes; nunca altera ou apaga dados existentes
+        aplicar_migracoes()
         popular_banco()
 
+    iniciar_sincronizacao_de_fotos(app)
     return app
+
+
+@event.listens_for(Engine, "connect")
+def _ativar_chaves_estrangeiras(conexao, _registro):
+    """SQLite só respeita integridade referencial (ON DELETE...) com esta pragma."""
+    if conexao.__class__.__module__.startswith("sqlite3"):
+        cursor = conexao.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
+
+def iniciar_sincronizacao_de_fotos(app):
+    """Busca fotos reais (Wikimedia) em segundo plano para lugares ainda sem foto."""
+    config = app.config
+    if not (config.get("FOTOS_SINCRONIZACAO_AUTOMATICA") and config.get("INTEGRACOES_EXTERNAS")) or app.testing:
+        return
+    # Com o recarregador do Flask em modo debug, roda só no processo que atende requisições.
+    if config.get("DEBUG") and os.environ.get("WERKZEUG_RUN_MAIN") != "true":
+        return
+    from backend.services.fotos_lugar_service import sincronizar_em_segundo_plano
+
+    sincronizar_em_segundo_plano(app)
 
 
 def registrar_controllers(app):
@@ -50,6 +79,11 @@ def registrar_tratadores_de_erro(app):
     def erro_de_aplicacao(erro):
         return jsonify(erro.to_dict()), erro.status
 
+    @app.errorhandler(RequestEntityTooLarge)
+    def arquivo_grande(_erro):
+        return jsonify({"erro": "Envio grande demais. Reduza o tamanho ou a quantidade de fotos.",
+                        "campo": "fotos"}), 413
+
     @app.errorhandler(HTTPException)
     def erro_http(erro):
         return jsonify({"erro": erro.description}), erro.code
@@ -58,6 +92,30 @@ def registrar_tratadores_de_erro(app):
     def erro_inesperado(erro):
         app.logger.exception(erro)
         return jsonify({"erro": "Erro interno no servidor."}), 500
+
+
+def registrar_cabecalhos_de_seguranca(app):
+    hosts_tiles = urlparse(app.config.get("MAPA_TILE_URL", "")).netloc.replace("{s}.", "*.")
+    imagens = " ".join(filter(None, [
+        "'self' data: blob:", "https://upload.wikimedia.org", "https://images.pexels.com",
+        "https://images.unsplash.com", "https://*.tile.openstreetmap.org",
+        f"https://{hosts_tiles}" if hosts_tiles else "",
+    ]))
+    politica = (
+        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
+        f"img-src {imagens}; connect-src 'self'; font-src 'self'; object-src 'none'; "
+        "base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    )
+
+    @app.after_request
+    def cabecalhos(resposta):
+        resposta.headers.setdefault("X-Content-Type-Options", "nosniff")
+        resposta.headers.setdefault("X-Frame-Options", "DENY")
+        resposta.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        resposta.headers.setdefault("Permissions-Policy", "geolocation=(), camera=(), microphone=()")
+        if resposta.mimetype == "text/html":
+            resposta.headers.setdefault("Content-Security-Policy", politica)
+        return resposta
 
 
 def registrar_frontend(app):

@@ -11,3 +11,14 @@ from datetime import datetime, timezone
 def agora_utc():
     """Momento atual em UTC, sem informação de fuso."""
     return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
+def hoje():
+    """Data local de hoje (as viagens são planejadas em datas do calendário local)."""
+    from datetime import date
+
+    return date.today()
+
+
+def formatar_data(valor):
+    return valor.isoformat() if valor else None

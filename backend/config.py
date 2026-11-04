@@ -43,3 +43,40 @@ class Config:
     # Regras de negócio configuráveis
     SENHA_TAMANHO_MINIMO = int(os.getenv("SENHA_TAMANHO_MINIMO", 6))
     CODIGO_VALIDADE_MINUTOS = int(os.getenv("CODIGO_VALIDADE_MINUTOS", 15))
+
+    # --- Uploads de fotografias (avaliações e diário) ---
+    PASTA_UPLOADS = os.getenv("PASTA_UPLOADS", os.path.join(BASE_DIR, "backend", "uploads"))
+    UPLOAD_TAMANHO_MAXIMO_MB = int(os.getenv("UPLOAD_TAMANHO_MAXIMO_MB", 5))
+    UPLOAD_MAXIMO_FOTOS = int(os.getenv("UPLOAD_MAXIMO_FOTOS", 6))
+    UPLOAD_LADO_MAXIMO_PX = int(os.getenv("UPLOAD_LADO_MAXIMO_PX", 1920))
+    # Limite do corpo da requisição (o Flask recusa com 413 acima disso)
+    MAX_CONTENT_LENGTH = (UPLOAD_TAMANHO_MAXIMO_MB * UPLOAD_MAXIMO_FOTOS + 1) * 1024 * 1024
+    URL_ARQUIVO_VALIDADE_MINUTOS = int(os.getenv("URL_ARQUIVO_VALIDADE_MINUTOS", 120))
+
+    # --- Integrações externas (mapas, geocodificação, clima e fotografias) ---
+    # 0 desliga todas as chamadas externas (útil em testes ou redes restritas).
+    INTEGRACOES_EXTERNAS = os.getenv("INTEGRACOES_EXTERNAS", "1") == "1"
+    # Wikimedia e Nominatim exigem um User-Agent que identifique a aplicação e um contato.
+    HTTP_USER_AGENT = os.getenv(
+        "HTTP_USER_AGENT", "Viajai/2.0 (aplicativo de viagens; configure HTTP_USER_AGENT com um contato)"
+    )
+    HTTP_TIMEOUT = int(os.getenv("HTTP_TIMEOUT", 12))
+    CACHE_EXTERNO_HORAS = int(os.getenv("CACHE_EXTERNO_HORAS", 24 * 7))
+    NOMINATIM_URL = os.getenv("NOMINATIM_URL", "https://nominatim.openstreetmap.org/search")
+    OVERPASS_URL = os.getenv("OVERPASS_URL", "https://overpass-api.de/api/interpreter")
+    OPEN_METEO_URL = os.getenv("OPEN_METEO_URL", "https://api.open-meteo.com/v1/forecast")
+    WIKIPEDIA_API_URL = os.getenv("WIKIPEDIA_API_URL", "https://{idioma}.wikipedia.org/w/api.php")
+    COMMONS_API_URL = os.getenv("COMMONS_API_URL", "https://commons.wikimedia.org/w/api.php")
+
+    # Mapa (Leaflet + OpenStreetMap). Em produção use um provedor de tiles próprio/contratado.
+    MAPA_TILE_URL = os.getenv("MAPA_TILE_URL", "https://tile.openstreetmap.org/{z}/{x}/{y}.png")
+    MAPA_TILE_ATRIBUICAO = os.getenv(
+        "MAPA_TILE_ATRIBUICAO",
+        '&copy; <a href="https://www.openstreetmap.org/copyright">colaboradores do OpenStreetMap</a>',
+    )
+
+    # Fotografias dos lugares: Wikimedia Commons não exige chave; Pexels e Unsplash sim.
+    PEXELS_API_KEY = os.getenv("PEXELS_API_KEY", "")
+    UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY", "")
+    # Busca as fotos reais em segundo plano ao iniciar (só para lugares ainda sem foto).
+    FOTOS_SINCRONIZACAO_AUTOMATICA = os.getenv("FOTOS_SINCRONIZACAO_AUTOMATICA", "1") == "1"

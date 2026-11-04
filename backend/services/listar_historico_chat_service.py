@@ -18,5 +18,6 @@ class ListarHistoricoChatService:
         return {
             "total": len(mensagens),
             "mensagens": [m.to_dict() for m in mensagens],
-            "sugestoes": ["Sugerir roteiro", "Melhores épocas", "Ver preços"],
+            "sugestoes": ["Sugerir roteiro", "Melhores épocas", "Ver preços", "Minha próxima viagem",
+                          "Como estão meus gastos?", "O que falta na mala?"],
         }
