@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d1f2a" />
+  <title>Viajaí · Descubra o mundo do seu jeito</title>
+  <link rel="stylesheet" href="css/estilos.css" />
+</head>
+<body>
+  <main class="app">
+    <section class="boas-vindas">
+      <header class="marca">
+        <div class="marca__icone">◎</div>
+        <span class="marca__nome">Viajaí</span>
+      </header>
+
+      <div>
+        <div class="aviso" id="aviso">
+          <span>Altere seu idioma a qualquer momento no menu de ajuda</span>
+          <button type="button" aria-label="Fechar aviso" onclick="document.getElementById('aviso').remove()">✕</button>
+        </div>
+
+        <div class="chips-flutuantes">
+          <span class="chip-vidro">🏖️ Praias</span>
+          <span class="chip-vidro">🍽️ Gastronomia</span>
+          <span class="chip-vidro">🏔️ Aventura</span>
+        </div>
+
+        <h1>Descubra o mundo<br />do seu jeito</h1>
+        <p class="texto-apoio">
+          Recomendações personalizadas para destinos, restaurantes e experiências que combinam com você.
+        </p>
+
+        <a class="botao botao--primario" href="cadastro.html">Começar agora ✈️</a>
+        <a class="botao botao--vidro" href="login.html">Já tenho uma conta</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script>
+    // Quem já entrou vai direto para a home.
+    if (Sessao.token()) window.location.replace("app.html");
+  </script>
+</body>
+</html>

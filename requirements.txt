@@ -1,0 +1,12 @@
+# Versões mínimas (sem travar a versão exata) para que o pip escolha
+# pacotes compatíveis com o seu Python — inclusive o 3.14.
+Flask>=3.1
+Werkzeug>=3.1
+Flask-Cors>=5.0
+Flask-SQLAlchemy>=3.1.1
+SQLAlchemy>=2.0.41
+python-dotenv>=1.0.1
+requests>=2.32
+
+# Descomente para usar MySQL em vez de SQLite:
+# PyMySQL>=1.1.1
