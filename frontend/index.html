@@ -4,22 +4,29 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0d1f2a" />
+  <meta name="description" content="Viajaí: descubra destinos, planeje roteiros com IA, organize gastos e registre suas viagens." />
   <title>Viajaí · Descubra o mundo do seu jeito</title>
   <link rel="stylesheet" href="css/estilos.css" />
 </head>
 <body>
-  <main class="app">
+  <main class="app app--inicial">
     <section class="boas-vindas">
+      <!-- Fotografia real de viagem (carregada do acervo verificado). Enquanto carrega
+           — ou se não houver foto —, o fundo de reserva (ilustração + gradiente) aparece. -->
+      <div class="boas-vindas__fundo" id="fundo" aria-hidden="true"></div>
+
       <header class="marca">
         <div class="marca__icone">◎</div>
         <span class="marca__nome">Viajaí</span>
       </header>
 
-      <div>
+      <div class="boas-vindas__conteudo">
         <div class="aviso" id="aviso">
           <span>Altere seu idioma a qualquer momento no menu de ajuda</span>
-          <button type="button" aria-label="Fechar aviso" onclick="document.getElementById('aviso').remove()">✕</button>
+          <button type="button" aria-label="Fechar aviso" id="fechar-aviso">✕</button>
         </div>
+
+        <p class="boas-vindas__local" id="local-foto" hidden></p>
 
         <div class="chips-flutuantes">
           <span class="chip-vidro">🏖️ Praias</span>
@@ -35,13 +42,13 @@
         <a class="botao botao--primario" href="cadastro.html">Começar agora ✈️</a>
         <a class="botao botao--vidro" href="login.html">Já tenho uma conta</a>
       </div>
+
+      <p class="credito-fundo" id="credito-fundo" hidden></p>
     </section>
   </main>
 
   <script src="js/api.js"></script>
-  <script>
-    // Quem já entrou vai direto para a home.
-    if (Sessao.token()) window.location.replace("app.html");
-  </script>
+  <script src="js/ui.js"></script>
+  <script src="js/inicio.js"></script>
 </body>
 </html>

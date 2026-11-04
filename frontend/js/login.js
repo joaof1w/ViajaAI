@@ -1,6 +1,7 @@
 /* Tela de login: e-mail + senha. */
 
 const alerta = document.getElementById("alerta");
+document.getElementById("botao-voltar").addEventListener("click", () => (window.location.href = "index.html"));
 const campoEmail = document.getElementById("campo-email");
 const campoSenha = document.getElementById("campo-senha");
 const entradaEmail = document.getElementById("email");

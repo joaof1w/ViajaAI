@@ -43,8 +43,13 @@ def distancia_km(origem, destino):
     return round(2 * 6371 * asin(sqrt(a)), 1)
 
 
+def _nome_proprio(nome):
+    """'rio de janeiro' -> 'Rio de Janeiro' (preposições em minúsculas)."""
+    return " ".join(p if p in ("de", "do", "da", "dos", "das") else p.capitalize() for p in nome.split())
+
+
 def listar_cidades():
     return [
-        {"cidade": nome.title(), "estado": uf, "rotulo": f"{nome.title()}, {uf}"}
+        {"cidade": _nome_proprio(nome), "estado": uf, "rotulo": f"{_nome_proprio(nome)}, {uf}"}
         for (nome, uf) in CIDADES
     ]

@@ -93,8 +93,10 @@ if (Sessao.exigirLogin()) {
       if (botao) botao.classList.add("selecionado");
     });
     escolherOrcamento(preferencias.orcamento);
-    const chave = `${preferencias.cidade}|${preferencias.estado}`;
-    if ([...seletorCidade.options].some((o) => o.value === chave)) seletorCidade.value = chave;
+    // Comparação sem diferenciar maiúsculas (cadastros antigos gravaram "Rio De Janeiro").
+    const chave = `${preferencias.cidade}|${preferencias.estado}`.toLowerCase();
+    const opcao = [...seletorCidade.options].find((o) => o.value.toLowerCase() === chave);
+    if (opcao) seletorCidade.value = opcao.value;
   }
 
   document.getElementById("botao-salvar").addEventListener("click", async () => {

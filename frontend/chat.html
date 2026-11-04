@@ -10,7 +10,7 @@
   <main class="app">
     <section class="chat">
       <header class="chat__topo">
-        <button class="topo__voltar" type="button" onclick="window.location.href='app.html'">←</button>
+        <button class="topo__voltar" type="button" id="botao-voltar" aria-label="Voltar">←</button>
         <div class="chat__avatar">🧳</div>
         <div>
           <h3>Vai</h3>
@@ -18,6 +18,15 @@
         </div>
         <span class="selo-ia" id="selo-ia">IA</span>
       </header>
+
+      <div class="chat__ferramentas">
+        <label class="visualmente-oculto" for="foco-viagem">Conversar sobre</label>
+        <select id="foco-viagem">
+          <option value="">💬 Conversa geral</option>
+        </select>
+        <button type="button" class="icone-botao" id="botao-permissoes" title="O que o Vai pode consultar"
+                aria-label="Permissões do Vai">🔒</button>
+      </div>
 
       <div class="chat__corpo" id="mensagens">
         <p class="chat__dia" id="dia">Hoje</p>
@@ -33,6 +42,7 @@
   </main>
 
   <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
   <script src="js/chat.js"></script>
 </body>
 </html>

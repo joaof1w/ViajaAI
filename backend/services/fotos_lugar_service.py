@@ -21,7 +21,7 @@ from backend.services.integracoes.fotos_wikimedia_service import FotosWikimediaS
 from backend.utils.erros import IntegracaoIndisponivel, NaoEncontrado
 
 PASTA_FUNDO = os.path.join(BASE_DIR, "frontend", "assets", "fundo")
-CAMPOS_FOTO = ("fonte", "id_externo", "url", "url_media", "url_miniatura", "largura", "altura", "titulo", "autor",
+CAMPOS_FOTO = ("fonte", "id_externo", "url", "url_media", "url_miniatura", "url_original", "largura", "altura", "titulo", "autor",
                "autor_url", "licenca", "licenca_url", "pagina_origem", "verificada")
 
 

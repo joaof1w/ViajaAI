@@ -26,6 +26,8 @@ if (Sessao.exigirLogin()) {
       montarFiltros();
       await Promise.all([carregarSalvos(false), carregarInicio()]);
       preencherPerfil();
+      carregarResumoViagens();
+      abrirAbaDoEndereco();
     } catch (erro) {
       el("lista-lugares").innerHTML = mensagemVazia("😕", erro.message);
     }
@@ -124,6 +126,32 @@ if (Sessao.exigirLogin()) {
     trocarAba("explorar");
     el("painel-filtros").scrollIntoView({ behavior: "smooth", block: "center" });
   });
+  el("ver-mapa").addEventListener("click", abrirMapaGeral);
+
+  /** Mapa com todo o catálogo: destinos e atrações (laranja) e restaurantes/estabelecimentos (azul). */
+  async function abrirMapaGeral() {
+    const corpo = Folha.abrir({
+      titulo: "Lugares no mapa",
+      conteudo: `<div class="legenda-mapa"><span class="selo">● Atrações e destinos</span>
+        <span class="selo selo--cinza" style="color:var(--azul)">● Restaurantes e estabelecimentos</span></div>
+        <div class="mapa mapa--alto" role="region" aria-label="Mapa dos lugares"></div>
+        <p class="dica">Toque em um ponto para ver o lugar.</p>`,
+    });
+    const mapa = await criarMapa($(".mapa", corpo), { centro: [-15.8, -47.9], zoom: 4 });
+    if (!mapa) return;
+    try {
+      const { lugares } = await Api.lugaresMapa();
+      lugares.forEach((l) => {
+        L.circleMarker([l.latitude, l.longitude], {
+          radius: 9, weight: 2, color: "#fff", fillOpacity: 0.95,
+          fillColor: l.tipo === "estabelecimento" ? "#2f80ed" : "#ff6b35",
+        }).bindPopup(`<h4>${escapar(l.nome)}</h4><div>${escapar(l.local)} · ⭐ ${l.nota} · ${escapar(l.preco_simbolo)}</div>
+          <a href="lugar.html?id=${l.id}">Ver detalhes e fotos</a>`).addTo(mapa);
+      });
+      mapa.fitBounds(lugares.map((l) => [l.latitude, l.longitude]), { padding: [24, 24] });
+    } catch (erro) { toast(erro.message, "erro"); }
+  }
+
   el("ver-todos").addEventListener("click", () => {
     trocarAba("explorar");
     buscar();
@@ -172,7 +200,7 @@ if (Sessao.exigirLogin()) {
     const cartao = document.createElement("article");
     cartao.className = "destaque";
     cartao.innerHTML = `
-      <div class="destaque__foto" style="background-image:url('${urlImagem(lugar.imagem)}')"></div>
+      <div class="destaque__foto">${imagemLugar(lugar, { tamanho: "media" })}</div>
       <span class="destaque__etiqueta ${lugar.categoria === "gastronomia" ? "destaque__etiqueta--laranja" : ""}">${lugar.categoria}</span>
       <button class="destaque__coracao" type="button">${estado.salvos.has(lugar.id) ? "♥" : "♡"}</button>
       <div class="match match--sobre" style="--p:${lugar.match}"><span>${lugar.match}%</span></div>
@@ -198,7 +226,7 @@ if (Sessao.exigirLogin()) {
     const cartao = document.createElement("article");
     cartao.className = "cartao";
     cartao.innerHTML = `
-      <div class="cartao__foto" style="background-image:url('${urlImagem(lugar.imagem)}')"></div>
+      ${imagemLugar(lugar, { classe: "cartao__foto" })}
       <div class="cartao__corpo">
         <h3>${lugar.nome}</h3>
         <div class="cartao__linha"><span>📍 ${lugar.local}</span></div>
@@ -220,7 +248,10 @@ if (Sessao.exigirLogin()) {
 
   /* ------------------------------ detalhes ------------------------------- */
   function abrirDetalhes(lugar) {
-    el("modal-foto").style.backgroundImage = `url('${urlImagem(lugar.imagem)}')`;
+    el("modal-foto").style.backgroundImage = `url('${urlCapa(lugar, "media")}')`;
+    el("modal-credito").innerHTML = lugar.foto ? creditoFoto(lugar.foto) : "Ilustração da categoria — ainda sem fotografia verificada deste lugar.";
+    el("modal-pagina").href = `lugar.html?id=${lugar.id}`;
+    el("modal-planejar").href = `viagens.html?novo=1&lugar=${lugar.id}`;
     el("modal-nome").textContent = lugar.nome;
     el("modal-local").textContent = `📍 ${lugar.local} · ${lugar.categoria}`;
     el("modal-descricao").textContent = lugar.descricao;
@@ -263,12 +294,31 @@ if (Sessao.exigirLogin()) {
       botao.addEventListener("click", () => trocarAba(botao.dataset.aba));
     });
     el("fab-chat").addEventListener("click", () => (window.location.href = "chat.html"));
+    el("botao-interesses").addEventListener("click", () => (window.location.href = "interesses.html"));
+    window.addEventListener("hashchange", abrirAbaDoEndereco);
     el("atalho-salvos").addEventListener("click", () => trocarAba("salvos"));
     el("botao-sair").addEventListener("click", async () => {
       try { await Api.sair(); } catch { /* token já inválido */ }
       Sessao.limpar();
       window.location.href = "index.html";
     });
+  }
+
+  /** Permite que outras telas abram uma aba específica (app.html#salvos, #perfil...). */
+  function abrirAbaDoEndereco() {
+    const aba = window.location.hash.replace("#", "");
+    if (["inicio", "explorar", "salvos", "perfil"].includes(aba) && aba !== estado.aba) trocarAba(aba);
+  }
+
+  async function carregarResumoViagens() {
+    try {
+      const dados = await Api.listarViagens();
+      el("perfil-viagens").textContent = `${dados.contagem.futura + dados.contagem.em_andamento} ativas · ${dados.contagem.concluida} concluídas`;
+      if (dados.convites_pendentes) {
+        el("contador-convites").textContent = dados.convites_pendentes;
+        el("contador-convites").hidden = false;
+      }
+    } catch { /* resumo é opcional */ }
   }
 
   function trocarAba(aba) {

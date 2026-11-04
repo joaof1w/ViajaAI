@@ -29,6 +29,7 @@ class FotoLugar(db.Model, ModeloBase):
     url = db.Column(db.String(600), nullable=False)
     url_media = db.Column(db.String(600), nullable=True)
     url_miniatura = db.Column(db.String(600), nullable=True)
+    url_original = db.Column(db.String(600), nullable=True)  # resolução máxima (usada no fundo da tela inicial)
     largura = db.Column(db.Integer, nullable=True)
     altura = db.Column(db.Integer, nullable=True)
     titulo = db.Column(db.String(300), nullable=True)

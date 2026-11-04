@@ -40,6 +40,7 @@ class FotosUnsplashService:
                 "url": foto["urls"]["regular"],
                 "url_media": foto["urls"]["regular"],
                 "url_miniatura": foto["urls"]["small"],
+                "url_original": foto["urls"].get("full"),
                 "largura": foto.get("width"),
                 "altura": foto.get("height"),
                 "titulo": (foto.get("alt_description") or consulta)[:300],

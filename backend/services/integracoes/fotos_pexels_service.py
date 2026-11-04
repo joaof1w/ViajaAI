@@ -35,6 +35,7 @@ class FotosPexelsService:
                 "url": foto["src"].get("large2x") or foto["src"]["original"],
                 "url_media": foto["src"].get("large"),
                 "url_miniatura": foto["src"].get("medium"),
+                "url_original": foto["src"].get("original"),
                 "largura": foto.get("width"),
                 "altura": foto.get("height"),
                 "titulo": (foto.get("alt") or consulta)[:300],

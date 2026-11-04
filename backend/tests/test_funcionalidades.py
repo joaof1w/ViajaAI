@@ -693,6 +693,24 @@ class TestFotosReais(CasoComApp):
         self.assertEqual(relatorio["novas"], 0)
 
 
+class TestFundoInicial(unittest.TestCase):
+    def test_versoes_otimizadas_do_fundo(self):
+        """tools/fotos.py fundo: paisagens 960/1600/2400 + recorte vertical 9:16 (imagem sintética)."""
+        import tempfile
+
+        from PIL import Image
+
+        from tools.fotos import gerar_versoes_fundo
+
+        original = io.BytesIO()
+        Image.new("RGB", (3000, 2000), (30, 120, 160)).save(original, "JPEG")
+        pasta = tempfile.mkdtemp()
+        fontes, retrato = gerar_versoes_fundo(original.getvalue(), pasta)
+        self.assertEqual([f["largura"] for f in fontes], [960, 1600, 2400])
+        self.assertEqual(Image.open(os.path.join(pasta, "fundo-retrato-1080.webp")).size, (1080, 1920))
+        self.assertEqual(len(retrato), 2)
+
+
 class TestMapaEComparador(CasoComApp):
     def test_mapa_da_viagem(self):
         token, _ = self.criar_usuario()

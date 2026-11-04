@@ -15,9 +15,9 @@ TIPOS_VIAGEM = {
 }
 
 # Papéis de quem participa (o proprietário é Viagem.proprietario_id)
-PAPEIS = {
-    "editor": "Editor — organiza roteiro, gastos, agenda e checklist",
+PAPEIS = {  # o primeiro é o padrão dos convites (menor privilégio)
     "viajante": "Viajante — visualiza, sugere e vota",
+    "editor": "Editor — organiza roteiro, gastos, agenda e checklist",
 }
 
 

@@ -199,3 +199,5 @@ function voltar() {
   }
   window.location.href = "index.html";
 }
+
+document.getElementById("botao-voltar").addEventListener("click", voltar);
