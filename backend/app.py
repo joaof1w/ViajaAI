@@ -1,5 +1,6 @@
 """Fábrica da aplicação Flask: registra extensões, Controllers e o frontend."""
 import os
+from contextlib import contextmanager
 from urllib.parse import urlparse
 
 from flask import Flask, abort, jsonify, send_from_directory
@@ -21,6 +22,11 @@ def create_app(config=Config):
     app = Flask(__name__, static_folder=None)
     app.config.from_object(config)
 
+    # Em produção a chave padrão de desenvolvimento assinaria sessões e URLs de fotos de forma previsível.
+    if not app.config.get("DEBUG") and not app.config.get("TESTING") \
+            and app.config.get("SECRET_KEY") == "viajai-chave-de-desenvolvimento":
+        raise RuntimeError("Defina SECRET_KEY no ambiente antes de rodar com FLASK_DEBUG=0.")
+
     db.init_app(app)
     cors.init_app(app, resources={r"/api/*": {"origins": "*"}})
 
@@ -34,12 +40,31 @@ def create_app(config=Config):
         from backend.migracoes import aplicar_migracoes
         from backend.seeds import popular_banco
 
-        db.create_all()  # só cria tabelas ausentes; nunca altera ou apaga dados existentes
-        aplicar_migracoes()
-        popular_banco()
+        # Vários workers (gunicorn) sobem juntos: o bloqueio evita criar tabelas/dados em paralelo.
+        with _bloqueio_de_inicializacao():
+            db.create_all()  # só cria tabelas ausentes; nunca altera ou apaga dados existentes
+            aplicar_migracoes()
+            popular_banco()
 
     iniciar_sincronizacao_de_fotos(app)
     return app
+
+
+@contextmanager
+def _bloqueio_de_inicializacao():
+    """Exclusão mútua entre processos na mesma máquina (fcntl; sem efeito no Windows)."""
+    try:
+        import fcntl
+    except ImportError:  # Windows: o servidor de desenvolvimento usa um único processo
+        yield
+        return
+    caminho = os.path.join(BASE_DIR, "backend", ".inicializacao.lock")
+    with open(caminho, "w") as arquivo:
+        fcntl.flock(arquivo, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(arquivo, fcntl.LOCK_UN)
 
 
 @event.listens_for(Engine, "connect")

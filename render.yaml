@@ -1,0 +1,20 @@
+# Blueprint do Render (plano gratuito). Atenção: o disco do plano gratuito é efêmero —
+# o SQLite e as fotos enviadas são apagados a cada novo deploy/reinício. Veja DEPLOY.md.
+services:
+  - type: web
+    name: viajai
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn wsgi:app --workers 2 --threads 4 --timeout 60
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: FLASK_DEBUG
+        value: "0"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FOTOS_SINCRONIZACAO_AUTOMATICA
+        value: "1"
+      - key: HTTP_USER_AGENT
+        value: "Viajai/2.0 (contato: seu-email@exemplo.com)"

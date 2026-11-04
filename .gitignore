@@ -9,3 +9,4 @@ venv/
 .vscode/
 backend/uploads/
 .pytest_cache/
+backend/.inicializacao.lock

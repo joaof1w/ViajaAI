@@ -8,6 +8,7 @@ SQLAlchemy>=2.0.41
 python-dotenv>=1.0.1
 requests>=2.32
 Pillow>=10.0
+gunicorn>=22.0; sys_platform != "win32"
 
 # Descomente para usar MySQL em vez de SQLite:
 # PyMySQL>=1.1.1
